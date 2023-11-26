@@ -38,6 +38,7 @@
   }
 
   .date-cell {
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -114,6 +115,13 @@
     return new Date(year, month + 1, 0).getDate();
   }
 
+  const formatDate = date => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Function to render the calendar
   function renderCalendar() {
     // Clear previous calendar
@@ -144,18 +152,18 @@
     ];
 
     if (selectedView === 'week') {
-      // Render a week view (for example, a single week)
       const startOfWeek = getStartOfWeek(currentDate);
+
       for (let i = 0; i < 7; i++) {
         const dateCell = document.createElement('div');
         const day = new Date(startOfWeek);
         day.setDate(startOfWeek.getDate() + i);
-        const dayOfMonth = day.getDate();
 
-        const currentDateStr = day.toISOString().split('T')[0];
+        const currentDateStr = formatDate(day);
         const foundDate = parsedHobby.calendar.find(
           entry => entry.date === currentDateStr
         );
+
         const hobbyStatus = foundDate ? foundDate.status : '';
 
         if (hobbyStatus) {
@@ -163,6 +171,7 @@
         } else {
           dateCell.classList.add('date-cell');
         }
+
         const dayName = dayNames[day.getDay()];
         dateCell.textContent = `${dayName} ${currentDateStr}`;
         calendarBody.appendChild(dateCell);
@@ -171,8 +180,6 @@
       // Render a month view (grid of days for the entire month)
       const firstDayOfMonth = new Date(year, month, 1).getDay(); // Get the day of the week (0 - 6) for the first day of the month
       const totalCells = 7 * Math.ceil((firstDayOfMonth + daysInMonth) / 7); // Total cells needed for a month grid
-
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
       for (let i = 1; i <= totalCells; i++) {
         const dateCell = document.createElement('div');
@@ -210,13 +217,11 @@
           }
 
           calendarBody.appendChild(dateCell);
-        } else {
-          calendarBody.appendChild(dateCell); // Append empty cells for the days outside the current month
         }
       }
     }
 
-    // new code---->
+    // function to handle calendar when user clicks on any date
     function handleDateCellClick(cell) {
       loadInitialDataFromTheServer();
       cell.addEventListener('click', () => {

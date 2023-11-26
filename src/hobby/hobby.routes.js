@@ -10,10 +10,16 @@ const hobbyController = new HobbyController();
 // router.route('/getHobbyCalendar', hobbyController.getHobbyCalendar);
 
 router.route('/').get((req, res) => {
-  hobbyController.getAll(req, res);
+  hobbyController.getHomePage(req, res);
 });
 router.route('/getHobbyCalendar').get((req, res) => {
   hobbyController.getHobbyCalendar(req, res);
+});
+router.route('/getStarted').get((req, res) => {
+  hobbyController.getAll(req, res);
+});
+router.route('/createHobbyPage').get((req, res) => {
+  hobbyController.getCreateHobbyPage(req, res);
 });
 
 //POST Routes

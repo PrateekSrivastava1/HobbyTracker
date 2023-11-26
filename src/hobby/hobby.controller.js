@@ -5,9 +5,26 @@ export default class HobbyController {
     this.hobbyRepository = new HobbyRepository();
   }
 
+  async getHomePage(req, res, next) {
+    try {
+      res.render('homePage');
+    } catch (err) {
+      console.log(err);
+      throw new Error('Something went wrong in Controller.');
+    }
+  }
+
+  getCreateHobbyPage(req, res, next) {
+    try {
+      res.render('createHobby');
+    } catch (err) {
+      console.log(err);
+      throw new Error('Something went wrong in Controller.');
+    }
+  }
+
   async create(req, res, next) {
     try {
-      console.log('controller: ', req.body.hobbyName);
       const newHobby = await this.hobbyRepository.add(req.body.hobbyName);
       if (newHobby.success) {
         const allHobbies = await this.hobbyRepository.getAll();

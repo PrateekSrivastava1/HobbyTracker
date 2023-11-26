@@ -1,0 +1,18 @@
+<ul>
+  <% hobbies.forEach(hobby => { %>
+  <li>
+    <form action="/getHobbyCalendar" method="GET" id="hobbyForm<%= hobby.id %>">
+      <input type="hidden" name="hobbyId" value="<%= hobby.id %>" />
+      <p style="cursor: pointer" onclick="submitHobbyForm('<%= hobby.id %>')">
+        <%= hobby.name %>
+      </p>
+    </form>
+  </li>
+  <% }); %>
+</ul>
+
+<script>
+  function submitHobbyForm(hobbyId) {
+    document.getElementById(`hobbyForm${hobbyId}`).submit();
+  }
+</script>

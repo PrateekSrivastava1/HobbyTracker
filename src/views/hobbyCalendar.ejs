@@ -1,0 +1,382 @@
+<style>
+  .calendar-page-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  .calendar {
+    width: 500px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    margin: auto;
+    font-weight: bold;
+    font-size: large;
+  }
+
+  .calendar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 10px;
+  }
+
+  .calendar form button {
+    display: flex;
+    align-items: center;
+    margin: auto;
+  }
+
+  .date-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+  }
+
+  /* Style for the selected date cell */
+  .date-cell.checked {
+    background-color: #9acd32; /* Green for checked */
+  }
+
+  .date-cell.crossed {
+    background-color: #ff6347; /* Red for crossed */
+  }
+
+  .date-cell.zero {
+    background-color: #d3d3d3; /* Gray for zero */
+  }
+  button {
+    cursor: pointer;
+  }
+</style>
+<div class="calendar-page-body">
+  <h2><%= hobbies.name %></h2>
+  <br />
+  <div class="calendar">
+    <div class="calendar-header">
+      <!-- Header content -->
+      <button id="prevBtn">Previous</button>
+      <select id="viewSelect">
+        <option value="week">Week View</option>
+        <option value="month">Month View</option>
+      </select>
+      <button id="nextBtn">Next</button>
+    </div>
+
+    <form action="/updateCalendar" method="POST">
+      <div class="calendar-body" id="calendarBody"></div>
+      <button id="updateCalendarButton" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Get references to HTML elements
+  let hobby = '';
+  let parsedHobby = {};
+  let updatedStatuses = {};
+
+  const loadInitialDataFromTheServer = () => {
+    hobby = '<%- JSON.stringify(hobbies) %>';
+    parsedHobby = JSON.parse(hobby);
+    updatedStatuses = {
+      ...parsedHobby
+    };
+  };
+
+  const calendarBody = document.getElementById('calendarBody');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const viewSelect = document.getElementById('viewSelect');
+
+  // Initialize current date
+  let currentDate = new Date();
+
+  // Function to get the number of days in a month
+  function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  // Function to render the calendar
+  function renderCalendar() {
+    // Clear previous calendar
+    calendarBody.innerHTML = '';
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = getDaysInMonth(year, month);
+
+    // Render the header with month and year
+    const header = document.createElement('div');
+    header.classList.add('calendar-header');
+    header.textContent = `${new Date(year, month).toLocaleString('default', {
+      month: 'long'
+    })} ${year}`;
+    calendarBody.appendChild(header);
+
+    // Logic to render the calendar grid based on the selected view (week or month)
+    const selectedView = viewSelect.value;
+    const dayNames = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday'
+    ];
+
+    if (selectedView === 'week') {
+      // Render a week view (for example, a single week)
+      const startOfWeek = getStartOfWeek(currentDate);
+      for (let i = 0; i < 7; i++) {
+        const dateCell = document.createElement('div');
+        const day = new Date(startOfWeek);
+        day.setDate(startOfWeek.getDate() + i);
+        const dayOfMonth = day.getDate();
+
+        const currentDateStr = day.toISOString().split('T')[0];
+        const foundDate = parsedHobby.calendar.find(
+          entry => entry.date === currentDateStr
+        );
+        const hobbyStatus = foundDate ? foundDate.status : '';
+
+        if (hobbyStatus) {
+          dateCell.classList.add('date-cell', hobbyStatus);
+        } else {
+          dateCell.classList.add('date-cell');
+        }
+        const dayName = dayNames[day.getDay()];
+        dateCell.textContent = `${dayName} ${currentDateStr}`;
+        calendarBody.appendChild(dateCell);
+      }
+    } else if (selectedView === 'month') {
+      // Render a month view (grid of days for the entire month)
+      const firstDayOfMonth = new Date(year, month, 1).getDay(); // Get the day of the week (0 - 6) for the first day of the month
+      const totalCells = 7 * Math.ceil((firstDayOfMonth + daysInMonth) / 7); // Total cells needed for a month grid
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      for (let i = 1; i <= totalCells; i++) {
+        const dateCell = document.createElement('div');
+        dateCell.classList.add('date-cell');
+
+        if (i > firstDayOfMonth && i <= daysInMonth + firstDayOfMonth) {
+          const dayOfMonth = i - firstDayOfMonth;
+          const currentDate = new Date(year, month, dayOfMonth);
+          const dayName = dayNames[currentDate.getDay()]; // Get the day name
+
+          // Get the year, month, and day as separate values to ensure the correct time zone handling
+          const cellYear = currentDate.getFullYear();
+          const cellMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+          const cellDay = currentDate.getDate().toString().padStart(2, '0');
+
+          // Construct the date string in the format: yyyy-mm-dd
+          const formattedDate = `${cellYear}-${cellMonth}-${cellDay}`;
+
+          // Set the text content of the cell to display day name and date
+          dateCell.textContent = `${dayName} ${formattedDate}`;
+
+          const foundDate = parsedHobby.calendar.find(entry => {
+            const entryDate = new Date(entry.date);
+            return (
+              entryDate.getFullYear() === currentDate.getFullYear() &&
+              entryDate.getMonth() === currentDate.getMonth() &&
+              entryDate.getDate() === currentDate.getDate()
+            );
+          });
+
+          const hobbyStatus = foundDate ? foundDate.status : '';
+
+          if (hobbyStatus) {
+            dateCell.classList.add(hobbyStatus);
+          }
+
+          calendarBody.appendChild(dateCell);
+        } else {
+          calendarBody.appendChild(dateCell); // Append empty cells for the days outside the current month
+        }
+      }
+    }
+
+    // new code---->
+    function handleDateCellClick(cell) {
+      loadInitialDataFromTheServer();
+      cell.addEventListener('click', () => {
+        cell.classList.toggle('checked');
+        cell.classList.remove('crossed', 'zero');
+
+        const date = getDateFromCell(cell);
+        const dateOnly = date.split(' ')[1];
+
+        const status = cell.classList.contains('checked') ? 'checked' : '';
+        // Check if the date already exists in updatedStatuses.calendar
+        const existingDateIndex = updatedStatuses.calendar.findIndex(
+          entry => entry.date === dateOnly
+        );
+
+        if (existingDateIndex !== -1) {
+          // Date exists, update the status
+          updatedStatuses.calendar[existingDateIndex].status = status;
+        } else {
+          // Date doesn't exist, add a new entry
+
+          updatedStatuses.calendar.push({ date: dateOnly, status: status });
+        }
+      });
+
+      cell.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        cell.classList.toggle('crossed');
+        cell.classList.remove('checked', 'zero');
+
+        const date = getDateFromCell(cell);
+        const dateOnly = date.split(' ')[1];
+        const status = cell.classList.contains('crossed') ? 'crossed' : '';
+
+        const existingDateIndex = updatedStatuses.calendar.findIndex(
+          entry => entry.date === dateOnly
+        );
+
+        if (existingDateIndex !== -1) {
+          // Date exists, update the status
+          updatedStatuses.calendar[existingDateIndex].status = status;
+        } else {
+          // Date doesn't exist, add a new entry
+          updatedStatuses.calendar.push({ date: dateOnly, status: status });
+        }
+      });
+
+      cell.addEventListener('dblclick', () => {
+        cell.classList.toggle('zero');
+        cell.classList.remove('checked', 'crossed');
+
+        const date = getDateFromCell(cell);
+        const dateOnly = date.split(' ')[1];
+
+        const status = cell.classList.contains('zero') ? 'zero' : '';
+
+        const existingDateIndex = updatedStatuses.calendar.findIndex(
+          entry => entry.date === dateOnly
+        );
+
+        if (existingDateIndex !== -1) {
+          // Date exists, update the status
+          updatedStatuses.calendar[existingDateIndex].status = status;
+        } else {
+          // Date doesn't exist, add a new entry
+          updatedStatuses.calendar.push({ date: dateOnly, status: status });
+        }
+      });
+    }
+
+    function getDateFromCell(cell) {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1; // Months are zero-indexed
+      const day = cell.textContent.padStart(2, '0');
+      console.log('day: ', day);
+      return `${year}-${month.toString().padStart(2, '0')}-${day}`;
+    }
+
+    // ------------>
+
+    // Event listeners for date cells
+    const dateCells = document.querySelectorAll('.date-cell');
+    dateCells.forEach(cell => {
+      handleDateCellClick(cell);
+    });
+  }
+
+  function getStartOfWeek(date) {
+    const currentDay = date.getDay();
+    const diff = date.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // Adjust to get the starting day of the week
+    return new Date(date.setDate(diff));
+  }
+
+  // Function to handle view change (week or month)
+  function handleViewChange() {
+    renderCalendar();
+  }
+
+  function navigatePrev() {
+    const currentView = viewSelect.value;
+
+    if (currentView === 'month') {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+    } else if (currentView === 'week') {
+      currentDate.setDate(currentDate.getDate() - 7);
+    }
+
+    renderCalendar();
+  }
+
+  function navigateNext() {
+    const currentView = viewSelect.value;
+
+    if (currentView === 'month') {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    } else if (currentView === 'week') {
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+
+    renderCalendar();
+  }
+
+  // Event listeners for buttons and view select
+  prevBtn.addEventListener('click', navigatePrev);
+  nextBtn.addEventListener('click', navigateNext);
+  viewSelect.addEventListener('change', handleViewChange);
+
+  // Initial rendering of the calendar
+
+  loadInitialDataFromTheServer();
+
+  setTimeout(() => {
+    renderCalendar();
+  }, [1000]);
+
+  // new code to save calendar updates --------------------------------->
+  const saveButton = document.getElementById('updateCalendarButton');
+  saveButton.addEventListener('click', event => {
+    event.preventDefault();
+
+    // Perform your logic to send 'updatedStatuses' to the server through a controller function
+
+    fetch('/updateCalendar', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ updatedStatuses }) // Send the updated statuses in the request body
+    })
+      .then(response => {
+        // Handle the response from the server if needed
+        if (response.ok) {
+          // Refresh the calendar after successfully updating the data
+          renderCalendar();
+        } else {
+          console.error('Error updating calendar');
+        }
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
+
+    // Clear the 'updatedStatuses' array/object after saving
+    Object.keys(updatedStatuses).forEach(key => delete updatedStatuses[key]);
+  });
+</script>

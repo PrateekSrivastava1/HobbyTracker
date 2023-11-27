@@ -9,8 +9,6 @@ This Hobby Tracker Application is designed to help users track their hobbies by 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 

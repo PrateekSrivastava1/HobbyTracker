@@ -69,11 +69,13 @@
     cursor: pointer;
     padding: 10px;
   }
+
   #nextBtn:hover,
   #prevBtn:hover,
   #updateCalendarButton:hover {
     background-color: #9fffa0;
   }
+
   h2 {
     color: rgb(193, 100, 100);
   }
@@ -95,6 +97,7 @@
       <button id="nextBtn">Next -></button>
     </div>
 
+    <!-- calendar UI -->
     <form action="/updateCalendar" method="POST">
       <div class="calendar-body" id="calendarBody"></div>
       <button id="updateCalendarButton" type="submit">Save</button>
@@ -103,7 +106,6 @@
 </div>
 
 <script>
-  // Get references to HTML elements
   let hobby = '';
   let parsedHobby = {};
   let updatedStatuses = {};
@@ -256,7 +258,6 @@
           updatedStatuses.calendar[existingDateIndex].status = status;
         } else {
           // Date doesn't exist, add a new entry
-
           updatedStatuses.calendar.push({ date: dateOnly, status: status });
         }
       });
@@ -334,6 +335,7 @@
     renderCalendar();
   }
 
+  // Function to go to previous date range according to selected view (week or month)
   function navigatePrev() {
     const currentView = viewSelect.value;
 
@@ -346,6 +348,7 @@
     renderCalendar();
   }
 
+  // Function to go to next date range according to selected view (week or month)
   function navigateNext() {
     const currentView = viewSelect.value;
 

@@ -1,14 +1,11 @@
 import express from 'express';
-// import HobbyController from '../controllers/hobbyController.js';
 import HobbyController from './hobby.controller.js';
 
 const router = express.Router();
 
 const hobbyController = new HobbyController();
-// GET Routes
-// router.route('/', hobbyController.index);
-// router.route('/getHobbyCalendar', hobbyController.getHobbyCalendar);
 
+// GET Routes
 router.route('/').get((req, res) => {
   hobbyController.getHomePage(req, res);
 });
@@ -23,9 +20,6 @@ router.route('/createHobbyPage').get((req, res) => {
 });
 
 //POST Routes
-// router.route('/create', hobbyController.create);
-// router.route('/updateCalendar', hobbyController.updateCalendar);
-
 router.route('/create').post((req, res) => {
   hobbyController.create(req, res);
 });

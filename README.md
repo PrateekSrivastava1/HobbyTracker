@@ -37,6 +37,10 @@ This Hobby Tracker Application is designed to help users track their hobbies by 
 - HTML/CSS/JavaScript
 - EJS (Embedded JavaScript templates)
 
+## Screenshot
+<img width="1512" alt="Screenshot 2023-11-27 at 10 46 34 PM" src="https://github.com/PrateekSrivastava1/HobbyTracker/assets/65366517/c1f8988b-e619-4217-bc75-a83369aa9311">
+
+
 ## Folder Structure
 
 ```plaintext

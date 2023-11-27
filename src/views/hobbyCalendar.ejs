@@ -9,7 +9,7 @@
     width: 500px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #fff;
+    background-color: rgb(225 232 231);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
 
@@ -22,6 +22,7 @@
     margin: auto;
     font-weight: bold;
     font-size: large;
+    color: rgb(77, 71, 0);
   }
 
   .calendar-body {
@@ -47,6 +48,9 @@
     background-color: #fff;
     cursor: pointer;
   }
+  .date-cell:hover {
+    background-color: rgb(225 232 231);
+  }
 
   /* Style for the selected date cell */
   .date-cell.checked {
@@ -60,8 +64,18 @@
   .date-cell.zero {
     background-color: #d3d3d3; /* Gray for zero */
   }
-  button {
+  button,
+  select {
     cursor: pointer;
+    padding: 10px;
+  }
+  #nextBtn:hover,
+  #prevBtn:hover,
+  #updateCalendarButton:hover {
+    background-color: #9fffa0;
+  }
+  h2 {
+    color: rgb(193, 100, 100);
   }
 </style>
 <form class="goToHomePage" action="/" method="GET">
@@ -73,12 +87,12 @@
   <div class="calendar">
     <div class="calendar-header">
       <!-- Header content -->
-      <button id="prevBtn">Previous</button>
+      <button id="prevBtn"><- Previous</button>
       <select id="viewSelect">
         <option value="week">Week View</option>
         <option value="month">Month View</option>
       </select>
-      <button id="nextBtn">Next</button>
+      <button id="nextBtn">Next -></button>
     </div>
 
     <form action="/updateCalendar" method="POST">

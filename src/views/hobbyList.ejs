@@ -1,21 +1,58 @@
+<style>
+  .hobby-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    margin: auto;
+  }
+  .hobby-cell {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  ul {
+    width: 400px;
+    list-style-type: none;
+  }
+  .hobby-cell:hover {
+    background-color: rgb(177, 255, 202);
+  }
+  h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: auto;
+    color: rgb(193, 100, 100);
+  }
+</style>
+
 <form class="goToHomePage" action="/" method="GET">
   <button type="submit">Go to Home Page</button>
 </form>
 
 <h2>All Hobbies</h2>
-
-<ul>
-  <% hobbies.forEach(hobby => { %>
-  <li>
-    <form action="/getHobbyCalendar" method="GET" id="hobbyForm<%= hobby.id %>">
-      <input type="hidden" name="hobbyId" value="<%= hobby.id %>" />
-      <p style="cursor: pointer" onclick="submitHobbyForm('<%= hobby.id %>')">
-        <%= hobby.name %>
-      </p>
-    </form>
-  </li>
-  <% }); %>
-</ul>
+<div class="hobby-container">
+  <ul>
+    <% hobbies.forEach(hobby => { %>
+    <li>
+      <form action="/getHobbyCalendar" method="GET" id="hobbyForm<%= hobby.id %>">
+        <input type="hidden" name="hobbyId" value="<%= hobby.id %>" />
+        <p class="hobby-cell" onclick="submitHobbyForm('<%= hobby.id %>')">
+          <%= hobby.name %>
+        </p>
+      </form>
+    </li>
+    <% }); %>
+  </ul>
+</div>
 
 <script>
   function submitHobbyForm(hobbyId) {
